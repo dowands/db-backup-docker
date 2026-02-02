@@ -12,10 +12,11 @@ fi
 aws configure set default.s3.addressing_style "${S3_ADDRESSING_STYLE:-virtual}"
 
 # Export env vars for cron subprocess
-env | grep -E '^(MYSQL_|PG_|S3_|BACKUP_|AWS_|HOME)' > /etc/environment
+env | grep -E '^(MYSQL_|PG_|S3_|BACKUP_|AWS_|HOME|PATH)' > /etc/environment
 
 # Build cron job: source env vars then run backup
-echo "${CRON_SCHEDULE} . /etc/environment; /usr/local/bin/backup.sh >> /var/log/backup.log 2>&1" > /etc/crontabs/root
+echo "${CRON_SCHEDULE} root . /etc/environment; /usr/local/bin/backup.sh >> /var/log/backup.log 2>&1" > /etc/cron.d/db-backup
+chmod 0644 /etc/cron.d/db-backup
 
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] Backup scheduler started. Schedule: ${CRON_SCHEDULE}"
 
@@ -26,4 +27,4 @@ if [ "$BACKUP_ON_START" = "true" ]; then
 fi
 
 # Start cron in foreground
-crond -f -l 2
+cron -f

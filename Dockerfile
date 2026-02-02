@@ -1,19 +1,21 @@
-FROM alpine:3.20
+FROM mysql:8.4 AS mysql-source
 
-RUN apk add --no-cache \
-    postgresql16-client \
-    aws-cli \
+FROM debian:bookworm-slim
+
+# Copy MySQL client binaries from official MySQL image
+COPY --from=mysql-source /usr/bin/mysqldump /usr/bin/mysqldump
+COPY --from=mysql-source /usr/bin/mysql /usr/bin/mysql
+COPY --from=mysql-source /usr/lib/mysql/ /usr/lib/mysql/
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    postgresql-client \
+    awscli \
     gzip \
+    cron \
     tzdata \
-  && rm -rf /var/cache/apk/*
-
-# Install Oracle MySQL client (supports caching_sha2_password)
-RUN wget -qO /tmp/mysql.tar.gz \
-    "https://cdn.mysql.com/Downloads/MySQL-8.4/mysql-8.4.4-linux-glibc2.17-$(uname -m).tar.gz" \
-  && tar -xzf /tmp/mysql.tar.gz -C /tmp --strip-components=1 \
-    --include='*/bin/mysqldump' --include='*/bin/mysql' \
-  && mv /tmp/bin/mysqldump /tmp/bin/mysql /usr/local/bin/ \
-  && rm -rf /tmp/*
+    ca-certificates \
+    libssl3 \
+  && rm -rf /var/lib/apt/lists/*
 
 COPY backup.sh /usr/local/bin/backup.sh
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
