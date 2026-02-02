@@ -15,13 +15,15 @@ Docker container for scheduled MySQL and PostgreSQL database backups to S3-compa
 
 ```bash
 docker run -d \
-  -e MYSQL_DATABASES="host:3306:root:password:db1,db2" \
+  -e MYSQL_DATABASES="host.docker.internal:3306:root:password:db1,db2" \
   -e S3_BUCKET="my-backups" \
   -e S3_ENDPOINT="https://s3.amazonaws.com" \
   -e S3_ACCESS_KEY="your-access-key" \
   -e S3_SECRET_KEY="your-secret-key" \
   -e S3_REGION="us-east-1" \
   -e CRON_SCHEDULE="0 2 * * *" \
+  --add-host=host.docker.internal:host-gateway \
+  --name db-backup \
   ghcr.io/your-username/db-backup-docker:main
 ```
 
@@ -60,6 +62,8 @@ MYSQL_DATABASES="mysql.example.com:3306:root:pass:app_db,analytics_db"
 # Two PostgreSQL servers
 PG_DATABASES="pg1.example.com:5432:postgres:pass:main|pg2.example.com:5432:postgres:pass:logs"
 ```
+
+> **Note:** To connect to databases on the Docker host, use `host.docker.internal` instead of `127.0.0.1`, and add `--add-host=host.docker.internal:host-gateway` to your `docker run` command.
 
 ## Docker Compose
 
