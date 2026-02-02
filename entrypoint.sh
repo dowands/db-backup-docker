@@ -9,6 +9,7 @@ aws configure set aws_secret_access_key "$S3_SECRET_KEY"
 if [ -n "$S3_REGION" ]; then
   aws configure set default.region "$S3_REGION"
 fi
+aws configure set default.s3.addressing_style "${S3_ADDRESSING_STYLE:-virtual}"
 
 # Export env vars for cron subprocess
 env | grep -E '^(MYSQL_|PG_|S3_|BACKUP_|AWS_|HOME)' > /etc/environment
