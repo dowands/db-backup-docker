@@ -24,7 +24,7 @@ docker run -d \
   -e CRON_SCHEDULE="0 2 * * *" \
   --add-host=host.docker.internal:host-gateway \
   --name db-backup \
-  ghcr.io/your-username/db-backup-docker:main
+  ghcr.io/dowands/db-backup-docker:master
 ```
 
 ## Environment Variables
@@ -70,7 +70,7 @@ PG_DATABASES="pg1.example.com:5432:postgres:pass:main|pg2.example.com:5432:postg
 ```yaml
 services:
   db-backup:
-    image: ghcr.io/your-username/db-backup-docker:main
+    image: ghcr.io/dowands/db-backup-docker:master
     environment:
       MYSQL_DATABASES: "mysql:3306:root:${MYSQL_PASSWORD}:mydb"
       PG_DATABASES: "postgres:5432:postgres:${PG_PASSWORD}:mydb"

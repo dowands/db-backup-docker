@@ -25,14 +25,16 @@ backup_mysql() {
       FILENAME="mysql_${host}_${db}_${TIMESTAMP}.sql.gz"
       log "Backing up MySQL: ${host}/${db}"
 
+      ERR_FILE="${BACKUP_DIR}/${db}.err"
       if ! mysqldump -h "$host" -P "$port" -u "$user" -p"$password" \
         --single-transaction --quick --lock-tables=false \
-        "$db" > "${BACKUP_DIR}/${FILENAME%.gz}" 2>&1; then
-        log "Error: Failed to dump MySQL ${host}/${db}"
-        rm -f "${BACKUP_DIR}/${FILENAME%.gz}"
+        "$db" > "${BACKUP_DIR}/${FILENAME%.gz}" 2>"$ERR_FILE"; then
+        log "Error: Failed to dump MySQL ${host}/${db}: $(cat "$ERR_FILE")"
+        rm -f "${BACKUP_DIR}/${FILENAME%.gz}" "$ERR_FILE"
         continue
       fi
 
+      rm -f "$ERR_FILE"
       gzip "${BACKUP_DIR}/${FILENAME%.gz}"
       upload_to_s3 "${BACKUP_DIR}/${FILENAME}" "${S3_PREFIX}mysql/${FILENAME}"
       rm -f "${BACKUP_DIR}/${FILENAME}"
@@ -59,13 +61,15 @@ backup_postgres() {
       FILENAME="pg_${host}_${db}_${TIMESTAMP}.sql.gz"
       log "Backing up PostgreSQL: ${host}/${db}"
 
+      ERR_FILE="${BACKUP_DIR}/${db}.err"
       if ! pg_dump -h "$host" -p "$port" -U "$user" -d "$db" \
-        --no-password > "${BACKUP_DIR}/${FILENAME%.gz}" 2>&1; then
-        log "Error: Failed to dump PostgreSQL ${host}/${db}"
-        rm -f "${BACKUP_DIR}/${FILENAME%.gz}"
+        --no-password > "${BACKUP_DIR}/${FILENAME%.gz}" 2>"$ERR_FILE"; then
+        log "Error: Failed to dump PostgreSQL ${host}/${db}: $(cat "$ERR_FILE")"
+        rm -f "${BACKUP_DIR}/${FILENAME%.gz}" "$ERR_FILE"
         continue
       fi
 
+      rm -f "$ERR_FILE"
       gzip "${BACKUP_DIR}/${FILENAME%.gz}"
       upload_to_s3 "${BACKUP_DIR}/${FILENAME}" "${S3_PREFIX}postgres/${FILENAME}"
       rm -f "${BACKUP_DIR}/${FILENAME}"
