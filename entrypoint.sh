@@ -12,7 +12,7 @@ fi
 aws configure set default.s3.addressing_style "${S3_ADDRESSING_STYLE:-virtual}"
 
 # Export env vars for cron subprocess (written to a separate file to avoid corrupting PAM's /etc/environment)
-export -p | grep -E ' (MYSQL_|PG_|S3_|BACKUP_|AWS_|HOME|PATH)=' > /etc/backup.env
+export -p | grep -E ' (MYSQL_|PG_|S3_|BACKUP_|AWS_|HOME|PATH)\w*=' > /etc/backup.env
 
 # Install cron job via crontab (more reliable in Docker than /etc/cron.d/)
 # Note: user crontab format has NO user field, unlike /etc/cron.d/
