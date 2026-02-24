@@ -11,11 +11,11 @@ if [ -n "$S3_REGION" ]; then
 fi
 aws configure set default.s3.addressing_style "${S3_ADDRESSING_STYLE:-virtual}"
 
-# Export env vars for cron subprocess (must include 'export' so child processes inherit them)
-export -p | grep -E ' (MYSQL_|PG_|S3_|BACKUP_|AWS_|HOME|PATH)=' > /etc/environment
+# Export env vars for cron subprocess (written to a separate file to avoid corrupting PAM's /etc/environment)
+export -p | grep -E ' (MYSQL_|PG_|S3_|BACKUP_|AWS_|HOME|PATH)=' > /etc/backup.env
 
 # Build cron job: source env vars then run backup
-echo "${CRON_SCHEDULE} root . /etc/environment; /usr/local/bin/backup.sh >> /var/log/backup.log 2>&1" > /etc/cron.d/db-backup
+echo "${CRON_SCHEDULE} root . /etc/backup.env; /usr/local/bin/backup.sh >> /var/log/backup.log 2>&1" > /etc/cron.d/db-backup
 chmod 0644 /etc/cron.d/db-backup
 
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] Backup scheduler started. Schedule: ${CRON_SCHEDULE}"

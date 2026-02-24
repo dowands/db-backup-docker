@@ -22,7 +22,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libssl3 \
   && apt-get purge -y curl gnupg \
   && apt-get autoremove -y \
-  && rm -rf /var/lib/apt/lists/*
+  && rm -rf /var/lib/apt/lists/* \
+  && sed -i '/pam_loginuid.so/s/required/optional/' /etc/pam.d/cron
 
 COPY backup.sh /usr/local/bin/backup.sh
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
