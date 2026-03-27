@@ -95,13 +95,15 @@ docker exec <container_name> backup
 
 ## S3 File Structure
 
+Backup files are named with the last digit of the day (0-9), so files are automatically rotated on a 10-day cycle. For example, backups on the 1st, 11th, and 21st all produce suffix `1` and overwrite each other, keeping at most 10 backups per database.
+
 ```
 s3://my-backups/
   └── db-backups/
       ├── mysql/
-      │   └── mysql_host_dbname_20240101_020000.sql.gz
+      │   └── mysql_host_dbname_3.sql.gz
       └── postgres/
-          └── pg_host_dbname_20240101_020000.sql.gz
+          └── pg_host_dbname_7.sql.gz
 ```
 
 ## License

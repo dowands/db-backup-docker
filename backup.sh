@@ -5,7 +5,7 @@ log() {
   echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1"
 }
 
-TIMESTAMP=$(date '+%Y%m%d_%H%M%S')
+DAY_DIGIT=$(date '+%d' | sed 's/.*\(.\)$/\1/')
 BACKUP_DIR="/tmp/backups"
 mkdir -p "$BACKUP_DIR"
 
@@ -22,7 +22,7 @@ backup_mysql() {
 
     echo "$databases" | tr ',' '\n' | while read -r db; do
       [ -z "$db" ] && continue
-      FILENAME="mysql_${host}_${db}_${TIMESTAMP}.sql.gz"
+      FILENAME="mysql_${host}_${db}_${DAY_DIGIT}.sql.gz"
       log "Backing up MySQL: ${host}/${db}"
 
       ERR_FILE="${BACKUP_DIR}/${db}.err"
@@ -58,7 +58,7 @@ backup_postgres() {
 
     echo "$databases" | tr ',' '\n' | while read -r db; do
       [ -z "$db" ] && continue
-      FILENAME="pg_${host}_${db}_${TIMESTAMP}.sql.gz"
+      FILENAME="pg_${host}_${db}_${DAY_DIGIT}.sql.gz"
       log "Backing up PostgreSQL: ${host}/${db}"
 
       ERR_FILE="${BACKUP_DIR}/${db}.err"
